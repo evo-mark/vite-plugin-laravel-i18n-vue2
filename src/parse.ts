@@ -6,52 +6,62 @@ import {
     unlinkSync,
 } from "node:fs";
 
-import { sep } from "node:path";
+import { join } from "node:path";
 import { Engine } from "php-parser";
 
 export const parseAll = (folderPath: string) => {
-    folderPath = folderPath.replace(/[\\/]$/, "") + sep;
+    folderPath = folderPath.replace(/[\\/]$/, "");
 
-    const folders = readdirSync(folderPath)
-        .filter((file) => statSync(folderPath + sep + file).isDirectory())
+    const locales = readdirSync(folderPath)
+        .map((file) => join(folderPath, file))
+        .filter((path) => statSync(path).isDirectory())
         .sort();
 
     const data = [];
-    for (const folder of folders) {
+    for (const locale of locales) {
         const lang = {};
 
-        readdirSync(folderPath + sep + folder)
-            .filter(
-                (file) =>
-                    !statSync(
-                        folderPath + sep + folder + sep + file
-                    ).isDirectory()
-            )
-            .sort()
-            .forEach((file) => {
-                lang[file.replace(/\.\w+$/, "")] = parse(
-                    readFileSync(
-                        folderPath + sep + folder + sep + file
-                    ).toString()
+        getAllFiles(locale)
+            .forEach((filePath) => {
+                if (statSync(filePath).isDirectory()) {
+                    return;
+                }
+
+                const key = filePath.substring(locale.length + 1).replace(/\.\w+$/, "")
+                lang[key] = parse(
+                    readFileSync(filePath).toString()
                 );
             });
 
         data.push({
-            folder,
+            locale: locale.substring(folderPath.length + 1),
             translations: convertToDotsSyntax(lang),
         });
     }
 
     console.log(`Outputting language files in ${data.length} localisations`);
 
-    return data.map(({ folder, translations }) => {
-        const name = `php_${folder}.json`;
-        const path = folderPath + name;
+    return data.map(({locale, translations}) => {
+        const name = `php_${locale}.json`;
+        const path = join(folderPath, name);
 
         writeFileSync(path, JSON.stringify(translations));
-        return { name, path };
+        return {name, path};
     });
 };
+
+const getAllFiles = (path: string) => {
+    return readdirSync(path)
+        .map((file) => join(path, file))
+        .flatMap((filePath) => {
+            if (statSync(filePath).isDirectory()) {
+                return getAllFiles(filePath);
+            }
+
+            return [filePath];
+        })
+        .sort();
+}
 
 const parse = (content) => {
     const arr = new Engine({})
