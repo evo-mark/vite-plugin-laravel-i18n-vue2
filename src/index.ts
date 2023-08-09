@@ -30,7 +30,6 @@ export const LaravelI18n = (
                 }   
             }
         },
-        /* @ts-ignore */
-        FullReload.default([config.langDirectory + "/**/*.php"]),
+        FullReload([config.langDirectory + "/**/*.php"]),
     ];
 };
