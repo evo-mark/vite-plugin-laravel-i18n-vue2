@@ -2,13 +2,19 @@
 	"name": "vite-plugin-laravel-i18n-vue2",
 	"version": "1.0.0",
 	"description": "Convert your Laravel I18N files to Vue2-compatible ones",
-	"main": "dist/index.js",
-	"module": "dist/index.js",
-	"types": "dist/index.d.ts",
-	"type": "module",
+	"main": "./dist/index.js",
+	"module": "./dist/index.mjs",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"import": "./dist/index.mjs",
+			"require": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		}
+	},
 	"scripts": {
-		"build": "tsc",
-		"watch": "tsc --watch",
+		"build": "tsup",
+		"watch": "npm run build -- --watch ./src",
 		"prepublishOnly": "npm run build"
 	},
 	"files": [
@@ -30,10 +36,16 @@
 	"homepage": "https://southcoastweb.co.uk",
 	"devDependencies": {
 		"@types/node": "18.11.17",
-		"typescript": ">=4.9.4"
+		"typescript": ">=4.9.4",
+		"vite": "^4.4.9"
 	},
 	"peerDependencies": {
 		"vite": "^4.1.1",
 		"vue": "^2.7.0"
+	},
+	"dependencies": {
+		"php-parser": "^3.1.5",
+		"tsup": "^6.7.0",
+		"vite-plugin-full-reload": "^1.0.5"
 	}
 }

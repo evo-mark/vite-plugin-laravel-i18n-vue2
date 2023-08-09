@@ -16,7 +16,6 @@
       "strictBindCallApply": true,
       "noFallthroughCasesInSwitch": false,
       "baseUrl": "./",
-      "outDir": "./dist",
       "declaration": true,
     },
     "include": [
